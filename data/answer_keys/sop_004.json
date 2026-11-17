@@ -1,0 +1,37 @@
+[
+  {
+    "id": "sop_004-01",
+    "category": "vague_language",
+    "section": "6. Classification",
+    "severity": "major",
+    "evidence_or_note": "Soon after detection"
+  },
+  {
+    "id": "sop_004-02",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "an appropriate tool"
+  },
+  {
+    "id": "sop_004-03",
+    "category": "responsibility_gap",
+    "section": "5. Procedure",
+    "severity": "major",
+    "evidence_or_note": "Root cause analysis is performed (no named owner)"
+  },
+  {
+    "id": "sop_004-04",
+    "category": "missing_reference",
+    "section": "7. References",
+    "severity": "minor",
+    "evidence_or_note": "SOP-QA-021 has no version"
+  },
+  {
+    "id": "sop_004-05",
+    "category": "inconsistency",
+    "section": "6. Classification",
+    "severity": "major",
+    "evidence_or_note": "Critical target 15 days vs escalation with no timeline in Procedure"
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "sop_002-01",
+    "category": "vague_language",
+    "section": "4. Responsibilities",
+    "severity": "major",
+    "evidence_or_note": "as appropriate"
+  },
+  {
+    "id": "sop_002-02",
+    "category": "responsibility_gap",
+    "section": "4. Responsibilities",
+    "severity": "minor",
+    "evidence_or_note": "QA or designee"
+  },
+  {
+    "id": "sop_002-03",
+    "category": "missing_reference",
+    "section": "5. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "the change form"
+  },
+  {
+    "id": "sop_002-04",
+    "category": "undefined_acronym",
+    "section": "5. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "URS"
+  },
+  {
+    "id": "sop_002-05",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "major",
+    "evidence_or_note": "within a reasonable time"
+  },
+  {
+    "id": "sop_002-06",
+    "category": "data_integrity",
+    "section": "5. Procedure",
+    "severity": "critical",
+    "evidence_or_note": "Emergency changes may be implemented before approval"
+  },
+  {
+    "id": "sop_002-07",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "if needed"
+  },
+  {
+    "id": "sop_002-08",
+    "category": "missing_reference",
+    "section": "6. Records",
+    "severity": "minor",
+    "evidence_or_note": "company policy"
+  },
+  {
+    "id": "sop_002-09",
+    "category": "vague_language",
+    "section": "8. Revision History",
+    "severity": "minor",
+    "evidence_or_note": "Updated"
+  },
+  {
+    "id": "sop_002-10",
+    "category": "data_integrity",
+    "section": "9. Approval",
+    "severity": "major",
+    "evidence_or_note": "Approved by row has no date"
+  }
+]

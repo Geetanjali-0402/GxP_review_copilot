@@ -1,0 +1,72 @@
+[
+  {
+    "id": "sop_003-01",
+    "category": "missing_section",
+    "section": "Document",
+    "severity": "minor",
+    "evidence_or_note": "No Revision History"
+  },
+  {
+    "id": "sop_003-02",
+    "category": "missing_section",
+    "section": "Document",
+    "severity": "major",
+    "evidence_or_note": "No Approval section"
+  },
+  {
+    "id": "sop_003-03",
+    "category": "undefined_acronym",
+    "section": "2. Scope",
+    "severity": "minor",
+    "evidence_or_note": "LIMS"
+  },
+  {
+    "id": "sop_003-04",
+    "category": "responsibility_gap",
+    "section": "4. Responsibilities",
+    "severity": "major",
+    "evidence_or_note": "no system owner assigned"
+  },
+  {
+    "id": "sop_003-05",
+    "category": "data_integrity",
+    "section": "5. Procedure",
+    "severity": "critical",
+    "evidence_or_note": "a shared account may be used by the laboratory team"
+  },
+  {
+    "id": "sop_003-06",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "major",
+    "evidence_or_note": "changed regularly"
+  },
+  {
+    "id": "sop_003-07",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "major",
+    "evidence_or_note": "reviewed periodically"
+  },
+  {
+    "id": "sop_003-08",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "major",
+    "evidence_or_note": "in a timely manner"
+  },
+  {
+    "id": "sop_003-09",
+    "category": "vague_language",
+    "section": "5. Procedure",
+    "severity": "major",
+    "evidence_or_note": "when necessary"
+  },
+  {
+    "id": "sop_003-10",
+    "category": "missing_reference",
+    "section": "6. References",
+    "severity": "minor",
+    "evidence_or_note": "Data Integrity Guidance"
+  }
+]

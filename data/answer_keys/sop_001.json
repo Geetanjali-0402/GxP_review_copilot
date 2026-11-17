@@ -1,0 +1,72 @@
+[
+  {
+    "id": "sop_001-01",
+    "category": "missing_section",
+    "section": "Document",
+    "severity": "major",
+    "evidence_or_note": "No Scope section"
+  },
+  {
+    "id": "sop_001-02",
+    "category": "missing_section",
+    "section": "Document",
+    "severity": "major",
+    "evidence_or_note": "No Approval section"
+  },
+  {
+    "id": "sop_001-03",
+    "category": "missing_section",
+    "section": "Document",
+    "severity": "minor",
+    "evidence_or_note": "No Revision History"
+  },
+  {
+    "id": "sop_001-04",
+    "category": "vague_language",
+    "section": "2. Responsibilities",
+    "severity": "major",
+    "evidence_or_note": "as appropriate"
+  },
+  {
+    "id": "sop_001-05",
+    "category": "responsibility_gap",
+    "section": "2. Responsibilities",
+    "severity": "major",
+    "evidence_or_note": "The cleaning is verified"
+  },
+  {
+    "id": "sop_001-06",
+    "category": "vague_language",
+    "section": "4. Procedure",
+    "severity": "major",
+    "evidence_or_note": "periodically"
+  },
+  {
+    "id": "sop_001-07",
+    "category": "data_integrity",
+    "section": "4. Procedure",
+    "severity": "critical",
+    "evidence_or_note": "Entries may be corrected if needed."
+  },
+  {
+    "id": "sop_001-08",
+    "category": "vague_language",
+    "section": "4. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "if needed"
+  },
+  {
+    "id": "sop_001-09",
+    "category": "undefined_acronym",
+    "section": "4. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "CAPA"
+  },
+  {
+    "id": "sop_001-10",
+    "category": "missing_reference",
+    "section": "4. Procedure",
+    "severity": "minor",
+    "evidence_or_note": "the cleaning validation protocol"
+  }
+]
