@@ -1,7 +1,7 @@
 from app.guardrails import verify_evidence
 from app.schemas import Finding, Severity
 
-DOC = "Cleaning shall be done as  appropriate after each batch."
+DOC = "Cleaning shall be done as appropriate after each batch."
 
 
 def make(quote):
