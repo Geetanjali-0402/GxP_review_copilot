@@ -1,19 +1,13 @@
 from pathlib import Path
-
 from app.parser import extract_text, split_sections
+from app.reviewer import review_document
 
-SOP_DIR = Path("data/sample_sops")
+path = Path("data/sample_sops/sop_001_cleaning.pdf")
+sections = split_sections(extract_text(path.read_bytes(), path.name))
+findings = review_document(sections)
 
-for pdf in sorted(SOP_DIR.glob("*.pdf")):
-    text = extract_text(pdf.read_bytes(), pdf.name)
-    sections = split_sections(text)
-
-    print(f"\n=== {pdf.name} ===")
-    print(f"{len(sections)} sections, {len(text)} characters")
-    for s in sections:
-        print(f"  {s['title']!r:40} {len(s['text']):5} chars")
-
-    # Header/footer check: these should NOT appear after cleaning
-    for junk in ["Meridian Pharma Ltd.", "CONFIDENTIAL", "Doc No:", "Effective date:"]:
-        if junk in text:
-            print(f"  WARNING: '{junk}' still present")
+print(f"\nTotal findings: {len(findings)}")
+for f in findings:
+    verified = "" if f.evidence_verified is None else (
+        "✓" if f.evidence_verified else "⚠️ HALLUCINATED")
+    print(f"[{f.severity.value.upper():8}] [{f.source:4}] {f.category:20} | {f.section} {verified}")
