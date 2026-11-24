@@ -10,4 +10,4 @@ print(f"\nTotal findings: {len(findings)}")
 for f in findings:
     verified = "" if f.evidence_verified is None else (
         "✓" if f.evidence_verified else "⚠️ HALLUCINATED")
-    print(f"[{f.severity.value.upper():8}] [{f.source:4}] {f.category:20} | {f.section} {verified}")
+    print(f"[{f.severity.value.upper():8}] [{f.source:4}] {f.category:20} | {f.section} | {f.finding[:120]}")

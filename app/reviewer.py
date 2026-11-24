@@ -7,6 +7,7 @@ from openai import OpenAI
 
 from app.checklist import LLM_CHECKS
 from app.guardrails import verify_evidence
+from app.llm import LLMError, call_llm_json
 from app.schemas import Finding, Severity
 
 load_dotenv()
@@ -93,22 +94,8 @@ def review_section(section_title: str, section_text: str) -> list[Finding]:
     )
 
     try:
-        response = get_client().chat.completions.create(
-            model=MODEL,
-            temperature=0,
-            max_tokens=1500,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
-            ],
-        )
-        raw = response.choices[0].message.content or ""
-        # strip markdown code fences if the model adds them
-        raw = raw.strip().removeprefix("```json").removeprefix(
-            "```").removesuffix("```").strip()
-        data = json.loads(raw)
-
-    except Exception as e:
+        data = call_llm_json(SYSTEM_PROMPT, user_message)
+    except LLMError as e:
         return [Finding(
             section=section_title,
             category="system_error",
@@ -117,6 +104,9 @@ def review_section(section_title: str, section_text: str) -> list[Finding]:
             source="rule",
         )]
 
+    if not isinstance(data, dict):
+        data = {"findings": data if isinstance(data, list) else []}
+
     findings = []
     for item in data.get("findings", []):
         try:
@@ -124,7 +114,7 @@ def review_section(section_title: str, section_text: str) -> list[Finding]:
             f = verify_evidence(f, section_text)
             findings.append(f)
         except Exception:
-            continue       # skip malformed items, don't crash the whole review
+            continue  # skip malformed items, don't crash the whole review
     return findings
 
 
