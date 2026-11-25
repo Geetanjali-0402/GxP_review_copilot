@@ -34,12 +34,12 @@ st.markdown("""<style>
 header[data-testid="stHeader"]{background:transparent}
 .stAppDeployButton,#MainMenu{display:none}
 .block-container{padding-top:2rem;max-width:1400px}
-section[data-testid="stSidebar"]{background:#fafaf8;border-right:1px solid #ecece6}
+ssection[data-testid="stSidebar"],section[data-testid="stSidebar"]>div{background:#dbeafe;border-right:1px solid #c3d9f5}
 [data-testid="stSidebar"] [role="radiogroup"]{gap:4px}
 [data-testid="stSidebar"] [role="radiogroup"] label{padding:9px 14px;border-radius:10px;width:100%;cursor:pointer}
 [data-testid="stSidebar"] [role="radiogroup"] label>div:first-child{display:none}
-[data-testid="stSidebar"] [role="radiogroup"] label:hover{background:#eaf0f7}
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked){background:#cfe3fb;color:#17468f;font-weight:600}
+[data-testid="stSidebar"] [role="radiogroup"] label:hover{background:rgba(255,255,255,.55)}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked){background:#ffffff;color:#17468f;font-weight:600;box-shadow:0 1px 3px rgba(23,70,143,.15)}
 .stButton>button,.stDownloadButton>button{border-radius:10px;border:1px solid #d5d9e0;background:#fff;color:#1f2430;font-weight:500;box-shadow:0 1px 1px rgba(16,24,40,.05);transition:.15s}
 .stButton>button:hover,.stDownloadButton>button:hover{border-color:#2b6cb0;color:#2b6cb0;background:#f3f8ff}
 .stButton>button[kind="primary"],.stButton>button[data-testid="stBaseButton-primary"]{background:#2b6cb0;border-color:#2b6cb0;color:#fff}
@@ -143,7 +143,7 @@ def decide(i, action, edited=None):
     st.rerun()
 
 
-def render_section(s, quotes):
+def render_section(s, quotes, focus=False):
     esc, spans = html.escape(s["text"]), []
     for q, sel in quotes:
         words = html.escape(q).split()
@@ -159,7 +159,8 @@ def render_section(s, quotes):
         out += esc[pos:a] + f'<mark class="{cls}">{esc[a:b]}</mark>'
         pos = b
     out += esc[pos:]
-    return f"<h4>{html.escape(s['title'])}</h4><p>{out.replace(chr(10), '<br>')}</p>"
+    head = '<h4 class="sel-mark sel-head">' if focus else "<h4>"
+    return f"{head}{html.escape(s['title'])}</h4><p>{out.replace(chr(10), '<br>')}</p>"
 
 
 PAGES = ["Review", "Observability", "Evaluation", "Audit trail",
@@ -231,7 +232,11 @@ if page == "Review":
                     qs = [(f.evidence_quote, i == S.sel) for i, f in enumerate(rep.findings)
                           if f.section == s["title"] and f.evidence_quote
                           and getattr(f, "evidence_verified", None) is not False]
-                    parts.append(render_section(s, qs))
+                    sel_f = rep.findings[S.sel] if S.sel is not None and S.sel < len(
+                        rep.findings) else None
+                    focus = bool(sel_f and sel_f.section ==
+                                 s["title"] and not any(sel for _, sel in qs))
+                    parts.append(render_section(s, qs, focus))
                 st.markdown(
                     f'<div class="doc">{"".join(parts)}</div>', unsafe_allow_html=True)
             if S.scroll:
@@ -286,7 +291,8 @@ if page == "Review":
                             if b[2].button("Edit", key=f"ed{i}"):
                                 S.edit = i
                                 st.rerun()
-                            if b[3].button("📍 Locate", key=f"lc{i}"):
+                            if b[3].button("📍 Locate", key=f"lc{i}", disabled=(f.section == "Document"),
+                                           help="Show this finding in the document"):
                                 S.sel, S.scroll = i, True
                                 st.rerun()
 
