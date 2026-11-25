@@ -11,11 +11,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="GxP Review Copilot",
-                   page_icon="📋", layout="wide")
+                   page_icon="assets/favicon.png", layout="wide")
 
 try:  # Streamlit Cloud secrets -> env (must happen before importing app.*)
-    for _k in ("LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
-        if _k in st.secrets:
+    for _k in ("LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL", "DATABASE_URL"):
+        if _k in st.secrets and (st.secrets[_k] or _k == "LLM_BASE_URL"):
             os.environ[_k] = str(st.secrets[_k])
 except Exception:
     pass
@@ -27,6 +27,7 @@ from app.pipeline import analyze  # noqa: E402
 from app.reviewer import PROMPT_VERSION, SYSTEM_PROMPT  # noqa: E402
 from evaluate import KEYS_DIR  # noqa: E402
 from evaluate import match as eval_match  # noqa: E402
+from app import db  # noqa: E402
 
 st.markdown("""<style>
 .stApp{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif}
@@ -58,12 +59,58 @@ textarea{border-radius:10px!important}
 mark.hl{background:#fde9b0;color:#222;padding:1px 5px;border-radius:5px}
 mark.sel{background:#ffb454;box-shadow:0 0 0 2px #ff9a1f}
 .ok{color:#1a7f37;font-weight:500}.no{color:#b42318;font-weight:500}
+.usercard{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#fff;border:1px solid #e6e6df;border-radius:12px;margin:8px 0}
+.avatar{width:34px;height:34px;min-width:34px;border-radius:50%;background:#2b6cb0;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600}
+.who{display:flex;flex-direction:column;font-size:13px;line-height:1.3;overflow:hidden}
+.who span{color:#7a8190;font-size:12px;overflow:hidden;text-overflow:ellipsis}
+[data-testid="stSidebarUserContent"]>div>[data-testid="stVerticalBlock"]{min-height:calc(100vh - 7rem)}
+.st-key-sb_bottom{margin-top:auto}
 </style>""", unsafe_allow_html=True)
 
 S = st.session_state
 for k, v in {"decisions": {}, "log": [], "runs": [], "sel": None, "edit": None,
              "scroll": False, "report": None, "sections": []}.items():
     S.setdefault(k, v)
+
+
+def _secret(name, default=""):
+    try:
+        return st.secrets.get(name, default)
+    except Exception:
+        return default
+
+
+def _auth_on():
+    try:
+        return "auth" in st.secrets
+    except Exception:
+        return False
+
+
+if _auth_on():  # Google sign-in required; every visitor is recorded
+    if not st.user.is_logged_in:
+        _, mid, _ = st.columns([1, 1.2, 1])
+        with mid:
+            st.markdown("<div style='height:18vh'></div>",
+                        unsafe_allow_html=True)
+            st.markdown("## GxP Review Copilot")
+            st.write(
+                "AI-assisted review of controlled documents, with human approval of every finding.")
+            st.button("Sign in with Google", type="primary",
+                      on_click=st.login, use_container_width=True)
+            st.caption(
+                "Signing in records your email, name and review decisions for the audit trail.")
+        st.stop()
+    USER = {"email": st.user.email, "name": st.user.name or st.user.email}
+else:  # local development without auth configured
+    USER = {"email": "dev@local", "name": "Local dev"}
+_admins = {e.strip().lower()
+           for e in str(_secret("ADMIN_EMAILS")).split(",") if e.strip()}
+IS_ADMIN = (not _auth_on()) or USER["email"].lower() in _admins
+if not S.get("visit_logged"):
+    db.log_visit(USER["email"], USER["name"])
+    S["visit_logged"] = True
+
 rep = S["report"]
 SEVS = ["critical", "major", "minor"]
 
@@ -85,6 +132,10 @@ def decide(i, action, edited=None):
     else:
         S.decisions[i] = {"action": action, "by": reviewer,
                           "at": now.strftime("%H:%M"), "edited": edited}
+    db.save_decision(reviewer_email=USER["email"], reviewer_name=reviewer, document=rep.filename,
+                     finding_id=i, section=f.section, category=f.category, severity=sev(
+                         f),
+                     action=action, original_text=f.finding, edited_text=edited or "")
     S.log.append({"time": now.isoformat(timespec="seconds"), "reviewer": reviewer,
                   "document": rep.filename, "finding": i, "section": f.section,
                   "category": f.category, "action": action, "edited_text": edited or ""})
@@ -111,13 +162,20 @@ def render_section(s, quotes):
     return f"<h4>{html.escape(s['title'])}</h4><p>{out.replace(chr(10), '<br>')}</p>"
 
 
+PAGES = ["Review", "Observability", "Evaluation", "Audit trail",
+         "Prompts"] + (["Visitors"] if IS_ADMIN else [])
+reviewer = USER["name"]
 with st.sidebar:
     st.markdown("### GxP Review Copilot")
-    page = st.radio("nav", ["Review", "Observability", "Evaluation", "Audit trail", "Prompts"],
-                    label_visibility="collapsed")
-    reviewer = st.text_input("Reviewer", "you")
-    st.caption(f"Model: {rep.llm_model if rep else MODEL}")
-    st.caption(f"Prompt: {rep.prompt_version if rep else PROMPT_VERSION}")
+    page = st.radio("nav", PAGES, label_visibility="collapsed")
+    with st.container(key="sb_bottom"):
+        st.caption(f"Model: {rep.llm_model if rep else MODEL}")
+        st.caption(f"Prompt: {rep.prompt_version if rep else PROMPT_VERSION}")
+        st.markdown(f'<div class="usercard"><div class="avatar">{html.escape(USER["name"][:1].upper())}</div>'
+                    f'<div class="who"><b>{html.escape(USER["name"])}</b>'
+                    f'<span>{html.escape(USER["email"])}</span></div></div>', unsafe_allow_html=True)
+        if _auth_on():
+            st.button("Sign out", on_click=st.logout, use_container_width=True)
 
 # ------------------------------------------------------------------ Review
 if page == "Review":
@@ -279,9 +337,10 @@ elif page == "Evaluation":
 
 # -------------------------------------------------------------- Audit trail
 elif page == "Audit trail":
-    st.subheader("Audit trail")
-    if S.log:
-        df = pd.DataFrame(S.log)
+    st.subheader("Audit trail" + (" (all reviewers)" if IS_ADMIN else ""))
+    rows = db.list_decisions(None if IS_ADMIN else USER["email"])
+    if rows:
+        df = pd.DataFrame(rows)
         st.dataframe(df, use_container_width=True, hide_index=True)
         st.download_button("Download CSV", df.to_csv(
             index=False), "audit_trail.csv", "text/csv")
@@ -289,6 +348,21 @@ elif page == "Audit trail":
         st.info("No review decisions recorded yet.")
 
 # ------------------------------------------------------------------ Prompts
+elif page == "Visitors":
+    st.subheader("Visitors")
+    users = db.visitors_summary()
+    if users:
+        df = pd.DataFrame(users)
+        tiles([("Unique visitors", len(df), "inherit"), ("Total visits", int(df.visits.sum()), "inherit"),
+               ("Decisions logged", len(db.list_decisions(None)), "inherit"),
+               ("Last visit (UTC)", df.last_seen.max()[5:16].replace("T", " "), "inherit")])
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.markdown("**Recent visits**")
+        st.dataframe(pd.DataFrame(db.recent_visits()),
+                     use_container_width=True, hide_index=True)
+    else:
+        st.info("No visits recorded yet.")
+
 else:
     st.subheader(f"Prompts ({PROMPT_VERSION})")
     st.markdown("**System prompt**")

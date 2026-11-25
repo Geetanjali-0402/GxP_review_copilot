@@ -7,3 +7,5 @@ data/vectorstore/
 .DS_Store
 .pytest_cache
 scratch.py
+.streamlit/secrets.toml
+reviewer.db
